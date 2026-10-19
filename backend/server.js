@@ -1,0 +1,14 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import pool from "./config/db.js";
+import customerRoutes from "./routes/customerRoutes.js";
+dotenv.config();
+const app=express();
+const PORT=process.env.PORT||5000;
+app.use(cors({origin:"http://localhost:5173"}));
+app.use(express.json());
+app.get("/",(_req,res)=>res.send("Customer CRM backend is running."));
+app.get("/api/db-test",async(_req,res)=>{try{const r=await pool.query("SELECT NOW() AS time");res.json({message:"PostgreSQL connected successfully!",time:r.rows[0].time});}catch(e){console.error("Database test failed:",e.message);res.status(500).json({message:"Database connection failed. Check backend/.env and PostgreSQL service."});}});
+app.use("/api/customers",customerRoutes);
+app.listen(PORT,()=>console.log(`Backend running at http://localhost:${PORT}`));
